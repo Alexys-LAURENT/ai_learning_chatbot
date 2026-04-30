@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { ScrollShadow, Spinner } from "@heroui/react";
-import { isTextUIPart, type UIMessage } from "ai";
 import type { ChatStatus } from "ai";
+import { isFileUIPart, isTextUIPart, type UIMessage } from "ai";
+import { useEffect, useRef } from "react";
 import { MessageBubble } from "./MessageBubble";
 
 interface MessageListProps {
@@ -61,13 +61,15 @@ export function MessageList({ messages, status }: MessageListProps) {
           const text = message.parts
             .filter(isTextUIPart)
             .map((p) => p.text)
-            .join("");
+            .join("");                                                                                                                                                                                                                                                                                                                                                                                                                              
           if (!text) return null;
+          const files = message.parts.filter(isFileUIPart);
           return (
             <MessageBubble
               key={message.id}
               role={message.role}
               content={text}
+              attachments={files.length > 0 ? files : undefined}
             />
           );
         })}
@@ -84,7 +86,7 @@ function LoadingBubble() {
   return (
     <div className="flex gap-3">
       <div
-        className="flex-shrink-0 w-7 h-7 flex items-center justify-center mt-0.5"
+        className="shrink-0 w-7 h-7 flex items-center justify-center mt-0.5"
         style={{
           background: "var(--surface-tertiary)",
           border: "1px solid var(--border)",

@@ -6,13 +6,13 @@ import { Button, TextArea, Spinner } from "@heroui/react";
 interface InputBarProps {
   onSend: (text: string, attachment?: File) => void;
   isLoading: boolean;
-  initialAttachment?: File;
+  attachment: File | null;
+  onAttachmentChange: (file: File | null) => void;
   requireAttachment?: boolean;
 }
 
-export function InputBar({ onSend, isLoading, initialAttachment, requireAttachment }: InputBarProps) {
+export function InputBar({ onSend, isLoading, attachment, onAttachmentChange, requireAttachment }: InputBarProps) {
   const [input, setInput] = useState("");
-  const [attachment, setAttachment] = useState<File | null>(initialAttachment ?? null);
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -24,9 +24,9 @@ export function InputBar({ onSend, isLoading, initialAttachment, requireAttachme
       if (requireAttachment && !attachment) return;
       onSend(text, attachment ?? undefined);
       setInput("");
-      setAttachment(null);
+      onAttachmentChange(null);
     },
-    [input, isLoading, onSend, attachment]
+    [input, isLoading, onSend, attachment, onAttachmentChange]
   );
 
   const handleKeyDown = useCallback(
@@ -43,11 +43,11 @@ export function InputBar({ onSend, isLoading, initialAttachment, requireAttachme
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file && file.type === "application/pdf") {
-        setAttachment(file);
+        onAttachmentChange(file);
       }
       e.target.value = "";
     },
-    []
+    [onAttachmentChange]
   );
 
   const canSend =
@@ -65,7 +65,7 @@ export function InputBar({ onSend, isLoading, initialAttachment, requireAttachme
         <div className="max-w-3xl mx-auto mb-2">
           <AttachmentChip
             file={attachment}
-            onRemove={() => setAttachment(null)}
+            onRemove={() => onAttachmentChange(null)}
           />
         </div>
       )}
