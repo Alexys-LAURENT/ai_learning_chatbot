@@ -13,6 +13,7 @@
     "@heroui/react": "^3.0.3",
     "@heroui/styles": "^3.0.3",
     "ai": "^6.0.170",
+    "ai-sdk-ollama": "^3.8.3",
     "canvas": "^3.2.3",
     "next": "16.2.4",
     "pdfjs-dist": "^5.7.284",
