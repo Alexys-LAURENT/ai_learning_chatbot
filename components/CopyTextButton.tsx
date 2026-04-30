@@ -3,7 +3,7 @@
 import { Button } from "@heroui/react";
 import { useState } from "react";
 import type { RevisionBlock } from "@/app/tools/revisionSheetTool";
-import { IconCheck, IconCopy } from "@/app/components/icons";
+import { IconCheck, IconCopy } from "@/components/icons";
 
 function blocksToText(subject: string, blocks: RevisionBlock[]): string {
   const lines: string[] = [`# ${subject}`, ""];

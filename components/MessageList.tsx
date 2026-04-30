@@ -1,13 +1,16 @@
 "use client";
 
+import QuizComponent from "@/components/QuizComponent";
+import RevisionSheetComponent from "@/components/RevisionSheetComponent";
+import { MyUIMessage } from "@/types/CustomUiMessage";
 import { ScrollShadow, Spinner } from "@heroui/react";
 import type { ChatStatus } from "ai";
-import { isFileUIPart, isTextUIPart, type UIMessage } from "ai";
-import { useEffect, useRef } from "react";
+import { isFileUIPart, isTextUIPart } from "ai";
+import { Fragment, useEffect, useRef } from "react";
 import { MessageBubble } from "./MessageBubble";
 
 interface MessageListProps {
-  messages: UIMessage[];
+  messages: MyUIMessage[];
   status: ChatStatus;
 }
 
@@ -58,20 +61,41 @@ export function MessageList({ messages, status }: MessageListProps) {
     <ScrollShadow hideScrollBar className="flex-1 overflow-y-auto">
       <div className="max-w-3xl mx-auto px-4 py-6 flex flex-col gap-5">
         {messages.map((message) => {
-          const text = message.parts
-            .filter(isTextUIPart)
-            .map((p) => p.text)
-            .join("");                                                                                                                                                                                                                                                                                                                                                                                                                              
-          if (!text) return null;
-          const files = message.parts.filter(isFileUIPart);
-          return (
-            <MessageBubble
-              key={message.id}
-              role={message.role}
-              content={text}
-              attachments={files.length > 0 ? files : undefined}
-            />
-          );
+          if (message.role === "user") {
+            const text = message.parts.filter(isTextUIPart).map((p) => p.text).join("");
+            if (!text) return null;
+            const files = message.parts.filter(isFileUIPart);
+            return (
+              <MessageBubble
+                key={message.id}
+                role="user"
+                content={text}
+                attachments={files.length > 0 ? files : undefined}
+              />
+            );
+          }
+
+          const elements = message.parts.flatMap((part, i) => {
+            switch (part.type) {
+              case "text":
+                return part.text
+                  ? [<MessageBubble key={`${message.id}-${i}`} role="assistant" content={part.text} />]
+                  : [];
+              case "tool-quizTool":
+                return part.state === "output-available"
+                  ? [<QuizComponent key={`${message.id}-${i}`} subject={part.output.subject} questions={part.output.questions} />]
+                  : [];
+              case "tool-revisionSheetTool":
+                return part.state === "output-available"
+                  ? [<RevisionSheetComponent key={`${message.id}-${i}`} subject={part.output.subject} blocks={part.output.blocks} />]
+                  : [];
+              default:
+                return [];
+            }
+          });
+
+          if (elements.length === 0) return null;
+          return <Fragment key={message.id}>{elements}</Fragment>;
         })}
 
         {status === "submitted" && <LoadingBubble />}

@@ -3,7 +3,7 @@ import { ThemeToggle } from "./ThemeToggle";
 export function AppHeader() {
   return (
     <header
-      className="flex items-center justify-between px-5 py-3 flex-shrink-0"
+      className="flex items-center justify-between px-5 py-3 shrink-0"
       style={{
         borderBottom: "1px solid var(--separator)",
         background: "var(--background)",

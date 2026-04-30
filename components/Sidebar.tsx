@@ -11,14 +11,14 @@ interface SidebarProps {
 export function Sidebar({ documents }: SidebarProps) {
   return (
     <aside
-      className="w-56 flex-shrink-0 flex flex-col overflow-y-auto"
+      className="w-56 shrink-0 flex flex-col overflow-y-auto"
       style={{
         borderRight: "1px solid var(--separator)",
         background: "var(--surface)",
       }}
     >
       <div
-        className="px-4 py-3 flex-shrink-0"
+        className="px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid var(--separator)" }}
       >
         <span className="text-[10px] tracking-[0.15em] uppercase font-medium" style={{ color: "var(--muted)" }}>
@@ -66,7 +66,7 @@ function SidebarItem({ entry }: { entry: DocumentEntry }) {
       }
       onMouseLeave={(e) => (e.currentTarget.style.background = "")}
     >
-      <div className="flex-shrink-0 mt-0.5">
+      <div className="shrink-0 mt-0.5">
         <PdfIcon />
       </div>
       <div className="flex-1 min-w-0">

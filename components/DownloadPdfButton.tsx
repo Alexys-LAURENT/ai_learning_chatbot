@@ -2,7 +2,7 @@
 
 import { Button } from "@heroui/react";
 import type { RevisionBlock } from "@/app/tools/revisionSheetTool";
-import { IconDownload } from "@/app/components/icons";
+import { IconDownload } from "@/components/icons";
 
 function blocksToHtml(subject: string, blocks: RevisionBlock[]): string {
   const body = blocks

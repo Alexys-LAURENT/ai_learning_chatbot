@@ -5,7 +5,7 @@ import {
   pdfToImages,
   pdfToText,
   processPdf,
-} from "@/app/utils/pdf";
+} from "@/utils/pdf";
 
 export const runtime = "nodejs";
 

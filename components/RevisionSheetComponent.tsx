@@ -2,9 +2,9 @@
 
 import { Card, Chip, Separator } from "@heroui/react";
 import type { RevisionBlock } from "@/app/tools/revisionSheetTool";
-import { Block } from "@/app/components/RevisionBlocks";
-import DownloadPdfButton from "@/app/components/DownloadPdfButton";
-import CopyTextButton from "@/app/components/CopyTextButton";
+import { Block } from "@/components/RevisionBlocks";
+import DownloadPdfButton from "@/components/DownloadPdfButton";
+import CopyTextButton from "@/components/CopyTextButton";
 
 type Props = {
   subject: string;

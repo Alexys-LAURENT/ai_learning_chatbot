@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
-import { Button, TextArea, Spinner } from "@heroui/react";
+import { Button, Spinner, TextArea } from "@heroui/react";
+import { useCallback, useRef, useState } from "react";
 
 interface InputBarProps {
   onSend: (text: string, attachment?: File) => void;
@@ -13,12 +13,10 @@ interface InputBarProps {
 
 export function InputBar({ onSend, isLoading, attachment, onAttachmentChange, requireAttachment }: InputBarProps) {
   const [input, setInput] = useState("");
-  const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = useCallback(
-    (e?: React.FormEvent) => {
-      e?.preventDefault();
+    () => {
       const text = input.trim();
       if (!text || isLoading) return;
       if (requireAttachment && !attachment) return;
@@ -26,7 +24,7 @@ export function InputBar({ onSend, isLoading, attachment, onAttachmentChange, re
       setInput("");
       onAttachmentChange(null);
     },
-    [input, isLoading, onSend, attachment, onAttachmentChange]
+    [input, isLoading, onSend, attachment, onAttachmentChange, requireAttachment]
   );
 
   const handleKeyDown = useCallback(
@@ -57,7 +55,7 @@ export function InputBar({ onSend, isLoading, attachment, onAttachmentChange, re
 
   return (
     <div
-      className="px-4 py-3 flex-shrink-0"
+      className="px-4 py-3 shrink-0"
       style={{ borderTop: "1px solid var(--separator)", background: "var(--background)" }}
     >
       {/* Attachment preview */}
@@ -70,21 +68,16 @@ export function InputBar({ onSend, isLoading, attachment, onAttachmentChange, re
         </div>
       )}
 
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-        className="max-w-3xl mx-auto flex gap-2 items-end"
-      >
+      <form className="max-w-3xl mx-auto flex gap-2 items-end">
         {/* Paperclip button */}
         <Button
-          type="button"
           onPress={() => fileInputRef.current?.click()}
           isIconOnly
           variant="ghost"
           size="sm"
           isDisabled={isLoading}
           aria-label="Joindre un document PDF"
-          className="flex-shrink-0 mb-0.5"
+          className="shrink-0 mb-0.5"
         >
           <PaperclipIcon active={!!attachment} />
         </Button>
@@ -110,13 +103,13 @@ export function InputBar({ onSend, isLoading, attachment, onAttachmentChange, re
         />
 
         <Button
-          type="submit"
+          onPress={handleSubmit}
           isDisabled={!canSend}
           isIconOnly
           variant={canSend ? "primary" : "secondary"}
           size="md"
           aria-label="Envoyer le message"
-          className="flex-shrink-0 mb-0.5"
+          className="shrink-0 mb-0.5"
         >
           {isLoading ? <Spinner size="sm" color="current" /> : <SendIcon />}
         </Button>
@@ -171,16 +164,17 @@ function AttachmentChip({
           fill="none"
         />
       </svg>
-      <span className="font-medium max-w-[180px] truncate">{file.name}</span>
-      <button
-        type="button"
-        onClick={onRemove}
-        className="transition-colors hover:opacity-70 ml-0.5"
-        style={{ color: "var(--muted)" }}
+      <span className="font-medium max-w-45 truncate">{file.name}</span>
+      <Button
+        isIconOnly
+        size="sm"
+        variant="ghost"
+        onPress={onRemove}
         aria-label="Retirer la pièce jointe"
+        className="ml-0.5 min-w-0 w-4 h-4"
       >
         ×
-      </button>
+      </Button>
     </div>
   );
 }

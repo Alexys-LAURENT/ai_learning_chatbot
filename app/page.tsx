@@ -5,8 +5,10 @@ import { DocumentUpload } from "@/components/DocumentUpload";
 import { InputBar } from "@/components/InputBar";
 import { MessageList } from "@/components/MessageList";
 import { Sidebar, type DocumentEntry } from "@/components/Sidebar";
+import type { MyUIMessage } from "@/types/CustomUiMessage";
 import { fileToUIPart } from "@/utils/fileToUIPart";
 import { useChat } from "@ai-sdk/react";
+import { Button } from "@heroui/react";
 import { DefaultChatTransport } from "ai";
 import { useCallback, useMemo, useState } from "react";
 
@@ -19,7 +21,7 @@ export default function Page() {
     []
   );
 
-  const { messages, sendMessage, status, stop, error, clearError } = useChat({ transport });
+  const { messages, sendMessage, status, stop, error, clearError } = useChat<MyUIMessage>({ transport });
 
   const addDocument = useCallback((file: File) => {
     setSentDocuments((prev) => {
@@ -67,20 +69,13 @@ export default function Page() {
                 <span className="truncate">Erreur : {error.message}</span>
                 <div className="flex items-center gap-3 shrink-0">
                   {status === "streaming" && (
-                    <button
-                      onClick={stop}
-                      className="underline opacity-80 hover:opacity-100 transition-opacity"
-                    >
+                    <Button size="sm" variant="ghost" onPress={stop}>
                       Arrêter
-                    </button>
+                    </Button>
                   )}
-                  <button
-                    onClick={clearError}
-                    className="opacity-60 hover:opacity-100 transition-opacity"
-                    aria-label="Fermer"
-                  >
+                  <Button size="sm" variant="ghost" isIconOnly onPress={clearError} aria-label="Fermer">
                     ✕
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

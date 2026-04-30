@@ -44,7 +44,7 @@ export function DocumentUpload({ onUpload }: DocumentUploadProps) {
     <div className="relative flex flex-col items-center justify-center h-full bg-background overflow-hidden">
       {/* Ambient background glow */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-175 h-100 rounded-full pointer-events-none"
         style={{
           background:
             "radial-gradient(ellipse at center, oklch(75.24% 0.0884 225.59 / 0.06) 0%, transparent 70%)",
