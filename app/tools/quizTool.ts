@@ -3,13 +3,12 @@ import { z } from "zod";
 
 const questionSchema = z.object({
   question: z.string().describe("Le texte de la question"),
-  choices: z.object({
-    A: z.string(),
-    B: z.string(),
-    C: z.string(),
-    D: z.string(),
-  }),
-  correctAnswer: z.enum(["A", "B", "C", "D"]),
+  choices: z.array(z.string()).min(2).describe("Les choix de réponses"),
+  correctAnswerIndex: z
+    .number()
+    .int()
+    .min(0)
+    .describe("L'index (0-based) du choix correct dans le tableau choices"),
   explanation: z.string().describe("Explication de la bonne réponse"),
 });
 

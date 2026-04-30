@@ -11,11 +11,11 @@ type Props = {
 
 type AnswerState = "idle" | "correct" | "wrong";
 
-const CHOICE_KEYS = ["A", "B", "C", "D"] as const;
+const toLabel = (i: number) => String.fromCharCode(65 + i);
 
 export default function QuizComponent({ subject, questions }: Props) {
   const [index, setIndex] = useState(0);
-  const [selected, setSelected] = useState<"A" | "B" | "C" | "D" | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
   const [answerState, setAnswerState] = useState<AnswerState>("idle");
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -23,10 +23,10 @@ export default function QuizComponent({ subject, questions }: Props) {
   const current = questions[index];
   const isLast = index === questions.length - 1;
 
-  function handleSelect(choice: "A" | "B" | "C" | "D") {
+  function handleSelect(choiceIndex: number) {
     if (answerState !== "idle") return;
-    setSelected(choice);
-    const correct = choice === current.correctAnswer;
+    setSelected(choiceIndex);
+    const correct = choiceIndex === current.correctAnswerIndex;
     setAnswerState(correct ? "correct" : "wrong");
     if (correct) setScore((s) => s + 1);
   }
@@ -91,10 +91,10 @@ export default function QuizComponent({ subject, questions }: Props) {
         <p className="text-lg font-semibold leading-snug">{current.question}</p>
 
         <div className="space-y-2">
-          {CHOICE_KEYS.map((key) => {
+          {current.choices.map((choice, i) => {
             const revealed = answerState !== "idle";
-            const isCorrect = key === current.correctAnswer;
-            const isSelected = selected === key;
+            const isCorrect = i === current.correctAnswerIndex;
+            const isSelected = selected === i;
 
             let variant: "outline" | "primary" | "danger" | "ghost" = "outline";
             if (revealed) {
@@ -105,15 +105,15 @@ export default function QuizComponent({ subject, questions }: Props) {
 
             return (
               <Button
-                key={key}
+                key={i}
                 variant={variant}
-                onPress={() => handleSelect(key)}
+                onPress={() => handleSelect(i)}
                 isDisabled={revealed && !isCorrect && !isSelected}
                 fullWidth
                 className="justify-start"
               >
-                <span className="font-bold mr-1">{key}.</span>
-                {current.choices[key]}
+                <span className="font-bold mr-1">{toLabel(i)}.</span>
+                {choice}
               </Button>
             );
           })}
@@ -124,7 +124,7 @@ export default function QuizComponent({ subject, questions }: Props) {
             <p className="font-semibold">
               {answerState === "correct"
                 ? "✓ Correct"
-                : `✗ La bonne réponse était ${current.correctAnswer}`}
+                : `✗ La bonne réponse était ${toLabel(current.correctAnswerIndex)}`}
             </p>
             <p className="text-muted">{current.explanation}</p>
           </div>
