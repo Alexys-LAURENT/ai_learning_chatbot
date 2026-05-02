@@ -23,18 +23,30 @@ export interface PdfProcessOptions {
   maxWidth?: number;
 }
 
-function computeScale(page: PDFPageProxy, density: number, maxWidth: number): number {
+function computeScale(
+  page: PDFPageProxy,
+  density: number,
+  maxWidth: number,
+): number {
   const baseScale = density / 72;
   const viewport = page.getViewport({ scale: baseScale });
-  return viewport.width > maxWidth ? (maxWidth / viewport.width) * baseScale : baseScale;
+  return viewport.width > maxWidth
+    ? (maxWidth / viewport.width) * baseScale
+    : baseScale;
 }
 
-async function renderPageToBase64(page: PDFPageProxy, options: PdfProcessOptions): Promise<string> {
+async function renderPageToBase64(
+  page: PDFPageProxy,
+  options: PdfProcessOptions,
+): Promise<string> {
   const { density = 150, maxWidth = 1200 } = options;
   const scale = computeScale(page, density, maxWidth);
   const viewport = page.getViewport({ scale });
 
-  const canvas = createCanvas(Math.ceil(viewport.width), Math.ceil(viewport.height));
+  const canvas = createCanvas(
+    Math.ceil(viewport.width),
+    Math.ceil(viewport.height),
+  );
 
   await page.render({
     canvas: canvas as unknown as HTMLCanvasElement,
@@ -76,7 +88,9 @@ async function pageHasImages(page: PDFPageProxy): Promise<boolean> {
  * console.log(`${pdf.numPages} page(s) détectée(s)`);
  * ```
  */
-export async function loadPdfFromBuffer(buffer: Buffer | Uint8Array): Promise<PDFDocumentProxy> {
+export async function loadPdfFromBuffer(
+  buffer: Buffer | Uint8Array,
+): Promise<PDFDocumentProxy> {
   const data = buffer instanceof Buffer ? new Uint8Array(buffer) : buffer;
   return pdfjs.getDocument({
     data,
@@ -108,7 +122,7 @@ export async function loadPdfFromBuffer(buffer: Buffer | Uint8Array): Promise<PD
  */
 export async function pdfToImages(
   pdf: PDFDocumentProxy,
-  options: PdfProcessOptions = {}
+  options: PdfProcessOptions = {},
 ): Promise<string[]> {
   const images: string[] = [];
 
@@ -194,15 +208,18 @@ export async function pdfToText(pdf: PDFDocumentProxy): Promise<string> {
  */
 export async function processPdf(
   pdf: PDFDocumentProxy,
-  options: PdfProcessOptions = {}
+  options: PdfProcessOptions = {},
+  forcedRenderMode?: "text" | "image",
 ): Promise<PdfPageResult[]> {
   const results: PdfPageResult[] = [];
 
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
-    const hasImages = await pageHasImages(page);
+    const useImageMode =
+      forcedRenderMode === "image" ||
+      (!forcedRenderMode && (await pageHasImages(page)));
 
-    if (hasImages) {
+    if (useImageMode) {
       const base64 = await renderPageToBase64(page, options);
       results.push({ type: "image", page: i, base64 });
     } else {
@@ -258,7 +275,7 @@ export async function processPdf(
  * ```
  */
 export function pdfResultsToAiContent(
-  results: PdfPageResult[]
+  results: PdfPageResult[],
 ): Array<{ type: "text"; text: string } | { type: "image"; image: string }> {
   return results.map((result) => {
     if (result.type === "image") {
