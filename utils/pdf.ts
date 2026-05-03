@@ -94,9 +94,9 @@ export async function loadPdfFromBuffer(
   const data = buffer instanceof Buffer ? new Uint8Array(buffer) : buffer;
   return pdfjs.getDocument({
     data,
-    cMapUrl: path.join(PDFJS_DIR, "cmaps/"),
+    cMapUrl: path.join(PDFJS_DIR, "cmaps") + "/",
     cMapPacked: true,
-    standardFontDataUrl: path.join(PDFJS_DIR, "standard_fonts/"),
+    standardFontDataUrl: path.join(PDFJS_DIR, "standard_fonts") + "/",
   }).promise;
 }
 
@@ -208,10 +208,16 @@ export async function pdfToText(pdf: PDFDocumentProxy): Promise<string> {
  */
 export async function processPdf(
   pdf: PDFDocumentProxy,
+  textmessage: string,
   options: PdfProcessOptions = {},
   forcedRenderMode?: "text" | "image",
 ): Promise<PdfPageResult[]> {
   const results: PdfPageResult[] = [];
+  results.push({
+    type: "text",
+    page: 0,
+    text: `Voici la demande de l'utilisateur à traiter en priorité via les documents fournit et les outils à disposition: \n${textmessage}`,
+  });
 
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
