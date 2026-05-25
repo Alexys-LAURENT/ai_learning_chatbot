@@ -11,9 +11,13 @@ import * as ai from 'ai';
 import { wrapAISDK } from 'langsmith/experimental/vercel';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
+const LMSTUDIO_BASE_URL =
+  process.env.LMSTUDIO_BASE_URL ?? 'http://localhost:1234/v1';
+const LMSTUDIO_MODEL = process.env.LMSTUDIO_MODEL ?? 'qwen/qwen3.5-9b';
+
 const lmstudio = createOpenAICompatible({
   name: 'lmstudio',
-  baseURL: 'http://localhost:1234/v1',
+  baseURL: LMSTUDIO_BASE_URL,
 });
 
 const systemPrompt = `
@@ -184,7 +188,7 @@ export async function POST(request: Request) {
     );
 
     const result = streamText({
-      model: lmstudio('qwen/qwen3.5-9b'),
+      model: lmstudio(LMSTUDIO_MODEL),
       tools: {
         displayQuizTool,
         displayRevisionSheetTool,
