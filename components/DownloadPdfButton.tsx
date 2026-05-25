@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
-import { Button } from "@heroui/react";
-import type { RevisionBlock } from "@/app/tools/revisionSheetTool";
-import { IconDownload } from "@/components/icons";
+import { Button } from '@heroui/react';
+import type { RevisionBlock } from '@/app/tools/displayRevisionSheetTool';
+import { IconDownload } from '@/components/icons';
 
 function blocksToHtml(subject: string, blocks: RevisionBlock[]): string {
   const body = blocks
     .map((block) => {
-      if (block.type === "table") {
-        const headers = block.headers.map((h) => `<th>${h}</th>`).join("");
+      if (block.type === 'table') {
+        const headers = block.headers.map((h) => `<th>${h}</th>`).join('');
         const rows = block.rows
-          .map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`)
-          .join("");
+          .map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`)
+          .join('');
         return `<table><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
       }
       const { type, content } = block;
-      if (type === "h1") return `<h2>${content}</h2>`;
-      if (type === "h2") return `<h3>${content}</h3>`;
-      if (type === "h3") return `<h4>${content}</h4>`;
-      if (type === "p") return `<p>${content}</p>`;
-      if (type === "li") return `<li>${content}</li>`;
-      if (type === "code") return `<pre><code>${content}</code></pre>`;
-      if (type === "bold") return `<p><strong>${content}</strong></p>`;
+      if (type === 'h1') return `<h2>${content}</h2>`;
+      if (type === 'h2') return `<h3>${content}</h3>`;
+      if (type === 'h3') return `<h4>${content}</h4>`;
+      if (type === 'p') return `<p>${content}</p>`;
+      if (type === 'li') return `<li>${content}</li>`;
+      if (type === 'code') return `<pre><code>${content}</code></pre>`;
+      if (type === 'bold') return `<p><strong>${content}</strong></p>`;
     })
-    .join("\n");
+    .join('\n');
 
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${subject}</title>
 <style>
@@ -53,10 +53,10 @@ type Props = {
 export default function DownloadPdfButton({ subject, blocks }: Props) {
   function handlePress() {
     const html = blocksToHtml(subject, blocks);
-    const blob = new Blob([html], { type: "text/html" });
+    const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
-    const win = window.open(url, "_blank");
-    win?.addEventListener("load", () => {
+    const win = window.open(url, '_blank');
+    win?.addEventListener('load', () => {
       win.print();
       URL.revokeObjectURL(url);
     });

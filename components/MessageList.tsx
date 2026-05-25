@@ -1,37 +1,48 @@
-"use client";
+'use client';
 
-import QuizComponent from "@/components/QuizComponent";
-import RevisionSheetComponent from "@/components/RevisionSheetComponent";
-import { MyUIMessage } from "@/types/CustomUiMessage";
-import { ScrollShadow, Spinner } from "@heroui/react";
-import type { ChatStatus } from "ai";
-import { isFileUIPart, isTextUIPart } from "ai";
-import { Fragment, useEffect, useRef } from "react";
-import { MessageBubble } from "./MessageBubble";
+import QuizComponent from '@/components/QuizComponent';
+import RevisionSheetComponent from '@/components/RevisionSheetComponent';
+import type { DocumentEntry } from '@/components/Sidebar';
+import { MyUIMessage } from '@/types/CustomUiMessage';
+import { parseCitationsFromText } from '@/utils/citations';
+import { ScrollShadow, Spinner } from '@heroui/react';
+import type { ChatStatus } from 'ai';
+import { isFileUIPart, isTextUIPart } from 'ai';
+import { Fragment, useEffect, useMemo, useRef } from 'react';
+import { AssistantRow } from './AssistantRow';
+import { MessageBubble } from './MessageBubble';
+import { PdfPageDisplay } from './PdfPageDisplay';
+import { ThinkingIndicator } from './ThinkingIndicator';
 
 interface MessageListProps {
   messages: MyUIMessage[];
   status: ChatStatus;
+  documents: DocumentEntry[];
 }
 
-export function MessageList({ messages, status }: MessageListProps) {
+export function MessageList({ messages, status, documents }: MessageListProps) {
+  const filesByName = useMemo(() => {
+    const map = new Map<string, File>();
+    for (const doc of documents) map.set(doc.file.name, doc.file);
+    return map;
+  }, [documents]);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const isLoading = status === "submitted" || status === "streaming";
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center px-6">
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
         <div
-          className="w-10 h-10 flex items-center justify-center"
+          className="flex h-10 w-10 items-center justify-center"
           style={{
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius, 2px)",
-            color: "var(--muted)",
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius, 2px)',
+            color: 'var(--muted)',
           }}
         >
           <svg
@@ -46,10 +57,13 @@ export function MessageList({ messages, status }: MessageListProps) {
           </svg>
         </div>
         <div className="space-y-1">
-          <p className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
+          <p
+            className="text-sm font-medium"
+            style={{ color: 'var(--foreground)' }}
+          >
             Votre document est prêt
           </p>
-          <p className="text-xs" style={{ color: "var(--muted)" }}>
+          <p className="text-xs" style={{ color: 'var(--muted)' }}>
             Posez votre première question ci-dessous
           </p>
         </div>
@@ -59,35 +73,81 @@ export function MessageList({ messages, status }: MessageListProps) {
 
   return (
     <ScrollShadow hideScrollBar className="flex-1 overflow-y-auto">
-      <div className="max-w-3xl mx-auto px-4 py-6 flex flex-col gap-5">
+      <div className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-6">
         {messages.map((message) => {
-          if (message.role === "user") {
-            const text = message.parts.filter(isTextUIPart).map((p) => p.text).join("");
-            if (!text) return null;
+          if (message.role === 'user') {
+            const rawText = message.parts
+              .filter(isTextUIPart)
+              .map((p) => p.text)
+              .join('');
+            const { citations, cleanText } = parseCitationsFromText(rawText);
             const files = message.parts.filter(isFileUIPart);
+            if (!cleanText && files.length === 0 && citations.length === 0) {
+              return null;
+            }
             return (
               <MessageBubble
                 key={message.id}
                 role="user"
-                content={text}
+                content={cleanText}
                 attachments={files.length > 0 ? files : undefined}
+                citations={citations.length > 0 ? citations : undefined}
               />
             );
           }
 
           const elements = message.parts.flatMap((part, i) => {
             switch (part.type) {
-              case "text":
-                return part.text
-                  ? [<MessageBubble key={`${message.id}-${i}`} role="assistant" content={part.text} />]
+              case 'reasoning':
+                return part.state === 'streaming'
+                  ? [
+                      <ThinkingIndicator key={`${message.id}-${i}`} />,
+                    ]
                   : [];
-              case "tool-quizTool":
-                return part.state === "output-available"
-                  ? [<QuizComponent key={`${message.id}-${i}`} subject={part.output.subject} questions={part.output.questions} />]
+              case 'text':
+                return part.text.trim()
+                  ? [
+                      <MessageBubble
+                        key={`${message.id}-${i}`}
+                        role="assistant"
+                        content={part.text}
+                      />,
+                    ]
                   : [];
-              case "tool-revisionSheetTool":
-                return part.state === "output-available"
-                  ? [<RevisionSheetComponent key={`${message.id}-${i}`} subject={part.output.subject} blocks={part.output.blocks} />]
+              case 'tool-displayQuizTool':
+                return part.state === 'output-available'
+                  ? [
+                      <AssistantRow key={`${message.id}-${i}`}>
+                        <QuizComponent
+                          subject={part.output.subject}
+                          questions={part.output.questions}
+                        />
+                      </AssistantRow>,
+                    ]
+                  : [];
+              case 'tool-displayRevisionSheetTool':
+                return part.state === 'output-available'
+                  ? [
+                      <AssistantRow key={`${message.id}-${i}`}>
+                        <RevisionSheetComponent
+                          subject={part.output.subject}
+                          blocks={part.output.blocks}
+                        />
+                      </AssistantRow>,
+                    ]
+                  : [];
+              case 'tool-displayPdfPageTool':
+                return part.state === 'output-available'
+                  ? [
+                      <AssistantRow key={`${message.id}-${i}`}>
+                        <PdfPageDisplay
+                          file={filesByName.get(part.output.source) ?? null}
+                          source={part.output.source}
+                          page={part.output.page}
+                          caption={part.output.caption}
+                        />
+                      </AssistantRow>,
+                    ]
                   : [];
               default:
                 return [];
@@ -98,7 +158,7 @@ export function MessageList({ messages, status }: MessageListProps) {
           return <Fragment key={message.id}>{elements}</Fragment>;
         })}
 
-        {status === "submitted" && <LoadingBubble />}
+        {status === 'submitted' && <LoadingBubble />}
 
         <div ref={bottomRef} />
       </div>
@@ -110,11 +170,11 @@ function LoadingBubble() {
   return (
     <div className="flex gap-3">
       <div
-        className="shrink-0 w-7 h-7 flex items-center justify-center mt-0.5"
+        className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center"
         style={{
-          background: "var(--surface-tertiary)",
-          border: "1px solid var(--border)",
-          borderRadius: "var(--radius, 2px)",
+          background: 'var(--surface-tertiary)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius, 2px)',
         }}
       >
         <Spinner size="sm" color="accent" />
@@ -122,20 +182,20 @@ function LoadingBubble() {
       <div
         className="px-4 py-3"
         style={{
-          background: "var(--surface)",
-          border: "1px solid var(--border)",
-          borderRadius: "var(--radius, 2px)",
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius, 2px)',
         }}
       >
-        <div className="flex gap-1.5 items-center h-4">
+        <div className="flex h-4 items-center gap-1.5">
           {[0, 160, 320].map((delay) => (
             <span
               key={delay}
-              className="w-1.5 h-1.5 rounded-full animate-bounce"
+              className="h-1.5 w-1.5 animate-bounce rounded-full"
               style={{
-                background: "var(--muted)",
+                background: 'var(--muted)',
                 animationDelay: `${delay}ms`,
-                animationDuration: "1s",
+                animationDuration: '1s',
               }}
             />
           ))}

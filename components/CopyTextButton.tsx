@@ -1,36 +1,36 @@
-"use client";
+'use client';
 
-import { Button } from "@heroui/react";
-import { useState } from "react";
-import type { RevisionBlock } from "@/app/tools/revisionSheetTool";
-import { IconCheck, IconCopy } from "@/components/icons";
+import { Button } from '@heroui/react';
+import { useState } from 'react';
+import type { RevisionBlock } from '@/app/tools/displayRevisionSheetTool';
+import { IconCheck, IconCopy } from '@/components/icons';
 
 function blocksToText(subject: string, blocks: RevisionBlock[]): string {
-  const lines: string[] = [`# ${subject}`, ""];
+  const lines: string[] = [`# ${subject}`, ''];
 
   for (const block of blocks) {
-    if (block.type === "table") {
+    if (block.type === 'table') {
       const colWidths = block.headers.map((h, i) =>
-        Math.max(h.length, ...block.rows.map((r) => (r[i] ?? "").length)),
+        Math.max(h.length, ...block.rows.map((r) => (r[i] ?? '').length))
       );
       const row = (cells: string[]) =>
-        "| " + cells.map((c, i) => c.padEnd(colWidths[i])).join(" | ") + " |";
+        '| ' + cells.map((c, i) => c.padEnd(colWidths[i])).join(' | ') + ' |';
       lines.push(row(block.headers));
-      lines.push("| " + colWidths.map((w) => "-".repeat(w)).join(" | ") + " |");
+      lines.push('| ' + colWidths.map((w) => '-'.repeat(w)).join(' | ') + ' |');
       block.rows.forEach((r) => lines.push(row(r)));
     } else {
       const { type, content } = block;
-      if (type === "h1") lines.push(`## ${content}`);
-      else if (type === "h2") lines.push(`### ${content}`);
-      else if (type === "h3") lines.push(`#### ${content}`);
-      else if (type === "li") lines.push(`  • ${content}`);
-      else if (type === "code") lines.push("```", content, "```");
+      if (type === 'h1') lines.push(`## ${content}`);
+      else if (type === 'h2') lines.push(`### ${content}`);
+      else if (type === 'h3') lines.push(`#### ${content}`);
+      else if (type === 'li') lines.push(`  • ${content}`);
+      else if (type === 'code') lines.push('```', content, '```');
       else lines.push(content);
     }
-    lines.push("");
+    lines.push('');
   }
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 type Props = {
@@ -50,7 +50,7 @@ export default function CopyTextButton({ subject, blocks }: Props) {
   return (
     <Button
       isIconOnly
-      variant={copied ? "primary" : "outline"}
+      variant={copied ? 'primary' : 'outline'}
       size="sm"
       onPress={handlePress}
       aria-label="Copier le texte"

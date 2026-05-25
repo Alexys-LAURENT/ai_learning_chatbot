@@ -6,9 +6,11 @@ export interface DocumentEntry {
 
 interface SidebarProps {
   documents: DocumentEntry[];
+  selectedDocId: string | null;
+  onSelectDocument: (doc: DocumentEntry) => void;
 }
 
-export function Sidebar({ documents }: SidebarProps) {
+export function Sidebar({ documents, selectedDocId, onSelectDocument }: SidebarProps) {
   return (
     <aside
       className="w-56 shrink-0 flex flex-col overflow-y-auto"
@@ -42,7 +44,12 @@ export function Sidebar({ documents }: SidebarProps) {
           </p>
         ) : (
           documents.map((doc) => (
-            <SidebarItem key={doc.id} entry={doc} />
+            <SidebarItem
+              key={doc.id}
+              entry={doc}
+              active={doc.id === selectedDocId}
+              onSelect={onSelectDocument}
+            />
           ))
         )}
       </div>
@@ -50,7 +57,15 @@ export function Sidebar({ documents }: SidebarProps) {
   );
 }
 
-function SidebarItem({ entry }: { entry: DocumentEntry }) {
+function SidebarItem({
+  entry,
+  active,
+  onSelect,
+}: {
+  entry: DocumentEntry;
+  active: boolean;
+  onSelect: (doc: DocumentEntry) => void;
+}) {
   const sizeMb = (entry.file.size / 1024 / 1024).toFixed(2);
   const time = entry.addedAt.toLocaleTimeString("fr-FR", {
     hour: "2-digit",
@@ -58,13 +73,23 @@ function SidebarItem({ entry }: { entry: DocumentEntry }) {
   });
 
   return (
-    <div
-      className="group flex items-start gap-2.5 px-3 py-2.5 cursor-default transition-colors"
-      style={{ "--hover-bg": "var(--surface-secondary)" } as React.CSSProperties}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.background = "var(--surface-secondary)")
-      }
-      onMouseLeave={(e) => (e.currentTarget.style.background = "")}
+    <button
+      type="button"
+      onClick={() => onSelect(entry)}
+      className="group flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition-colors"
+      style={{
+        background: active ? "var(--surface-secondary)" : "transparent",
+        borderLeft: active
+          ? "2px solid oklch(75.24% 0.0884 225.59)"
+          : "2px solid transparent",
+        cursor: "pointer",
+      }}
+      onMouseEnter={(e) => {
+        if (!active) e.currentTarget.style.background = "var(--surface-secondary)";
+      }}
+      onMouseLeave={(e) => {
+        if (!active) e.currentTarget.style.background = "transparent";
+      }}
     >
       <div className="shrink-0 mt-0.5">
         <PdfIcon />
@@ -83,7 +108,7 @@ function SidebarItem({ entry }: { entry: DocumentEntry }) {
           {sizeMb} Mo · {time}
         </p>
       </div>
-    </div>
+    </button>
   );
 }
 

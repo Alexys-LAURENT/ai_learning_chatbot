@@ -1,7 +1,9 @@
 "use client";
 
+import type { Citation } from "@/types/Citation";
 import { Button, Spinner, TextArea } from "@heroui/react";
 import { useCallback, useRef, useState } from "react";
+import { CitationChips } from "./CitationChips";
 
 interface InputBarProps {
   onSend: (text: string, attachment?: File) => void;
@@ -9,9 +11,19 @@ interface InputBarProps {
   attachment: File | null;
   onAttachmentChange: (file: File | null) => void;
   requireAttachment?: boolean;
+  citations: Citation[];
+  onRemoveCitation: (citationId: string) => void;
 }
 
-export function InputBar({ onSend, isLoading, attachment, onAttachmentChange, requireAttachment }: InputBarProps) {
+export function InputBar({
+  onSend,
+  isLoading,
+  attachment,
+  onAttachmentChange,
+  requireAttachment,
+  citations,
+  onRemoveCitation,
+}: InputBarProps) {
   const [input, setInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -65,6 +77,12 @@ export function InputBar({ onSend, isLoading, attachment, onAttachmentChange, re
             file={attachment}
             onRemove={() => onAttachmentChange(null)}
           />
+        </div>
+      )}
+
+      {citations.length > 0 && (
+        <div className="max-w-3xl mx-auto mb-2">
+          <CitationChips citations={citations} onRemove={onRemoveCitation} />
         </div>
       )}
 
