@@ -40,21 +40,23 @@ export function MessageBubble({ role, content, attachments, citations }: Message
         )}
 
         {/* Bubble */}
-        <div
-          className={`px-4 py-3 text-sm leading-relaxed ${isUser ? "whitespace-pre-wrap" : ""}`}
-          style={{
-            background: isUser
-              ? "oklch(75.24% 0.0884 225.59 / 0.1)"
-              : "var(--surface)",
-            color: "var(--foreground)",
-            border: isUser
-              ? "1px solid oklch(75.24% 0.0884 225.59 / 0.2)"
-              : "1px solid var(--border)",
-            borderRadius: "var(--radius, 2px)",
-          }}
-        >
-          {isUser ? content : <MarkdownContent content={content} />}
-        </div>
+        {content && (
+          <div
+            className={`px-4 py-3 text-sm leading-relaxed ${isUser ? "whitespace-pre-wrap" : ""}`}
+            style={{
+              background: isUser
+                ? "oklch(75.24% 0.0884 225.59 / 0.1)"
+                : "var(--surface)",
+              color: "var(--foreground)",
+              border: isUser
+                ? "1px solid oklch(75.24% 0.0884 225.59 / 0.2)"
+                : "1px solid var(--border)",
+              borderRadius: "var(--radius, 2px)",
+            }}
+          >
+            {isUser ? content : <MarkdownContent content={content} />}
+          </div>
+        )}
 
         {/* Attachments */}
         {isUser && attachments && attachments.length > 0 && (

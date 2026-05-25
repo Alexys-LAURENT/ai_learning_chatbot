@@ -1,83 +1,101 @@
 "use client";
 
+import { Button, Spinner } from "@heroui/react";
 import { useCallback, useState } from "react";
 
 interface DocumentUploadProps {
-  onUpload: (file: File) => void;
+  onSubmit: (files: File[]) => void;
+  isSubmitting?: boolean;
 }
 
-export function DocumentUpload({ onUpload }: DocumentUploadProps) {
+function fileKey(file: File): string {
+  return `${file.name}-${file.size}`;
+}
+
+export function DocumentUpload({ onSubmit, isSubmitting = false }: DocumentUploadProps) {
+  const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFile = useCallback(
-    (file: File) => {
-      if (file.type !== "application/pdf") {
-        setError("Seuls les fichiers PDF sont acceptés.");
-        return;
-      }
-      setError(null);
-      onUpload(file);
-    },
-    [onUpload]
-  );
+  const addFiles = useCallback((incoming: FileList | File[]) => {
+    const pdfs = Array.from(incoming).filter(
+      (f) => f.type === "application/pdf"
+    );
+    if (pdfs.length === 0) {
+      setError("Seuls les fichiers PDF sont acceptés.");
+      return;
+    }
+    setError(null);
+    setFiles((prev) => {
+      const existing = new Set(prev.map(fileKey));
+      const fresh = pdfs.filter((f) => !existing.has(fileKey(f)));
+      return [...prev, ...fresh];
+    });
+  }, []);
+
+  const removeFile = useCallback((key: string) => {
+    setFiles((prev) => prev.filter((f) => fileKey(f) !== key));
+  }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLLabelElement>) => {
       e.preventDefault();
       setIsDragging(false);
-      const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
+      addFiles(e.dataTransfer.files);
     },
-    [handleFile]
+    [addFiles]
   );
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) handleFile(file);
+      if (e.target.files) addFiles(e.target.files);
+      e.target.value = "";
     },
-    [handleFile]
+    [addFiles]
   );
 
+  const handleSubmit = () => {
+    if (files.length === 0 || isSubmitting) return;
+    onSubmit(files);
+  };
+
+  const canSubmit = files.length > 0 && !isSubmitting;
+
   return (
-    <div className="relative flex flex-col items-center justify-center h-full bg-background overflow-hidden">
-      {/* Ambient background glow */}
+    <div className="relative flex h-full flex-col items-center justify-center overflow-hidden bg-background">
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-175 h-100 rounded-full pointer-events-none"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-100 w-175 -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
           background:
             "radial-gradient(ellipse at center, oklch(75.24% 0.0884 225.59 / 0.06) 0%, transparent 70%)",
         }}
       />
 
-      <div className="relative w-full max-w-md px-6 flex flex-col gap-10">
-        {/* Header */}
+      <div className="relative flex w-full max-w-md flex-col gap-8 px-6">
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="flex items-center gap-3">
             <span className="block h-px w-10 bg-border" />
-            <span className="text-[10px] tracking-[0.2em] uppercase text-muted font-medium">
+            <span className="text-muted text-[10px] font-medium tracking-[0.2em] uppercase">
               Document Chat
             </span>
             <span className="block h-px w-10 bg-border" />
           </div>
           <h1
-            className="text-[2.5rem] font-bold leading-[1.1] tracking-tight text-foreground"
+            className="text-foreground text-[2.5rem] leading-[1.1] font-bold tracking-tight"
             style={{ fontFamily: "var(--font-sans)" }}
           >
-            Analysez votre
+            Analysez vos
             <br />
-            document PDF
+            documents PDF
           </h1>
-          <p className="text-muted text-sm max-w-xs">
-            Importez un document pour commencer à poser vos questions
+          <p className="text-muted max-w-xs text-sm">
+            Importez un ou plusieurs documents puis lancez la conversation
           </p>
         </div>
 
-        {/* Drop zone */}
         <label
           htmlFor="pdf-upload"
-          className="relative flex flex-col items-center justify-center gap-5 w-full h-52 cursor-pointer select-none transition-all duration-200"
+          className="relative flex h-40 w-full cursor-pointer flex-col items-center justify-center gap-3 select-none transition-all duration-200"
           style={{
             border: isDragging
               ? "2px dashed oklch(75.24% 0.0884 225.59)"
@@ -103,6 +121,7 @@ export function DocumentUpload({ onUpload }: DocumentUploadProps) {
             id="pdf-upload"
             type="file"
             accept=".pdf,application/pdf"
+            multiple
             className="sr-only"
             onChange={handleChange}
           />
@@ -118,26 +137,49 @@ export function DocumentUpload({ onUpload }: DocumentUploadProps) {
             <PdfIcon />
           </div>
 
-          <div className="text-center space-y-1.5">
-            <p className="text-sm font-semibold text-foreground">
-              {isDragging ? "Relâchez pour importer" : "Glissez votre PDF ici"}
+          <div className="space-y-1 text-center">
+            <p className="text-foreground text-sm font-semibold">
+              {isDragging ? "Relâchez pour importer" : "Glissez vos PDF ici"}
             </p>
-            <p className="text-xs text-muted">
+            <p className="text-muted text-xs">
               ou cliquez pour parcourir vos fichiers
             </p>
           </div>
         </label>
 
-        {/* Error */}
-        {error && (
-          <div className="flex items-center justify-center gap-2 text-sm -mt-6" style={{ color: "var(--danger)" }}>
-            <span>⚠</span>
-            <span>{error}</span>
-          </div>
+        {files.length > 0 && (
+          <FileList files={files} onRemove={removeFile} />
         )}
 
-        {/* Footer hint */}
-        <p className="text-center text-xs text-muted -mt-4">
+        {error && (
+          <p
+            className="flex items-center justify-center gap-2 text-sm"
+            style={{ color: "var(--danger)" }}
+          >
+            <span>⚠</span>
+            <span>{error}</span>
+          </p>
+        )}
+
+        <Button
+          onPress={handleSubmit}
+          isDisabled={!canSubmit}
+          variant="primary"
+          className="w-full"
+        >
+          {isSubmitting ? (
+            <Spinner size="sm" color="current" />
+          ) : (
+            <>
+              Lancer la conversation
+              {files.length > 0 && (
+                <span className="ml-1.5 opacity-70">({files.length})</span>
+              )}
+            </>
+          )}
+        </Button>
+
+        <p className="text-muted -mt-4 text-center text-xs">
           Format accepté :{" "}
           <span className="text-foreground font-medium">PDF uniquement</span>
         </p>
@@ -146,11 +188,65 @@ export function DocumentUpload({ onUpload }: DocumentUploadProps) {
   );
 }
 
+function FileList({
+  files,
+  onRemove,
+}: {
+  files: File[];
+  onRemove: (key: string) => void;
+}) {
+  return (
+    <ul className="flex flex-col gap-1.5">
+      {files.map((file) => {
+        const sizeMb = (file.size / 1024 / 1024).toFixed(2);
+        return (
+          <li
+            key={fileKey(file)}
+            className="flex items-center gap-2.5 px-3 py-2 text-xs"
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: "var(--radius, 2px)",
+            }}
+          >
+            <SmallPdfIcon />
+            <div className="min-w-0 flex-1">
+              <p
+                className="truncate font-medium"
+                style={{ color: "var(--foreground)" }}
+                title={file.name}
+              >
+                {file.name}
+              </p>
+              <p
+                className="tabular-nums"
+                style={{ color: "var(--muted)", fontSize: "10px" }}
+              >
+                {sizeMb} Mo
+              </p>
+            </div>
+            <Button
+              isIconOnly
+              size="sm"
+              variant="ghost"
+              onPress={() => onRemove(fileKey(file))}
+              aria-label="Retirer le document"
+              className="h-5 w-5 min-w-0"
+            >
+              ×
+            </Button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 function PdfIcon() {
   return (
     <svg
-      width="52"
-      height="60"
+      width="44"
+      height="50"
       viewBox="0 0 52 60"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -182,6 +278,33 @@ function PdfIcon() {
       >
         PDF
       </text>
+    </svg>
+  );
+}
+
+function SmallPdfIcon() {
+  return (
+    <svg
+      width="18"
+      height="22"
+      viewBox="0 0 22 26"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ color: "oklch(75.24% 0.0884 225.59)", flexShrink: 0 }}
+    >
+      <path
+        d="M3 2C3 1.44772 3.44772 1 4 1H14L21 8V24C21 24.5523 20.5523 25 20 25H4C3.44772 25 3 24.5523 3 24V2Z"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        fill="none"
+      />
+      <path
+        d="M14 1V7C14 7.55228 14.4477 8 15 8H21"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        fill="none"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

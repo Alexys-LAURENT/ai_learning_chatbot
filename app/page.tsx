@@ -20,6 +20,7 @@ export default function Page() {
   const [pendingAttachment, setPendingAttachment] = useState<File | null>(null);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [citations, setCitations] = useState<Citation[]>([]);
+  const [isInitialSubmitting, setIsInitialSubmitting] = useState(false);
 
   const transport = useMemo(
     () => new DefaultChatTransport({ api: "/api/chat" }),
@@ -39,6 +40,23 @@ export default function Page() {
       return [...prev, { id: crypto.randomUUID(), file, addedAt: new Date() }];
     });
   }, []);
+
+  // Premier envoi depuis le gate : un message utilisateur composé uniquement
+  // de PDFs (sans texte). Le system prompt prend en charge l'accusé de réception.
+  const handleInitialSubmit = useCallback(
+    async (files: File[]) => {
+      if (files.length === 0) return;
+      setIsInitialSubmitting(true);
+      try {
+        files.forEach(addDocument);
+        const fileParts = await Promise.all(files.map(fileToUIPart));
+        await sendMessage({ text: "", files: fileParts });
+      } finally {
+        setIsInitialSubmitting(false);
+      }
+    },
+    [addDocument, sendMessage]
+  );
 
   const addCitation = useCallback((citation: Omit<Citation, "id">) => {
     setCitations((prev) => [...prev, { ...citation, id: crypto.randomUUID() }]);
@@ -67,13 +85,17 @@ export default function Page() {
 
   const isLoading = status === "submitted" || status === "streaming";
   const showGate = messages.length === 0 && !pendingAttachment;
+  const isGateSubmitting = isInitialSubmitting || isLoading;
 
   return (
     <div className="flex flex-col h-full">
       <AppHeader />
 
       {showGate ? (
-        <DocumentUpload onUpload={setPendingAttachment} />
+        <DocumentUpload
+          onSubmit={handleInitialSubmit}
+          isSubmitting={isGateSubmitting}
+        />
       ) : (
         <div className="flex flex-1 overflow-hidden">
           <Sidebar

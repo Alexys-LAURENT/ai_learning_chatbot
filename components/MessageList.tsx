@@ -72,9 +72,11 @@ export function MessageList({ messages, status }: MessageListProps) {
               .filter(isTextUIPart)
               .map((p) => p.text)
               .join('');
-            if (!rawText) return null;
             const { citations, cleanText } = parseCitationsFromText(rawText);
             const files = message.parts.filter(isFileUIPart);
+            if (!cleanText && files.length === 0 && citations.length === 0) {
+              return null;
+            }
             return (
               <MessageBubble
                 key={message.id}
