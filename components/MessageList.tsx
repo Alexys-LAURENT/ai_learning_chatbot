@@ -8,11 +8,17 @@ import { parseCitationsFromText } from '@/utils/citations';
 import { ScrollShadow, Spinner } from '@heroui/react';
 import type { ChatStatus } from 'ai';
 import { isFileUIPart, isTextUIPart } from 'ai';
+import dynamic from 'next/dynamic';
 import { Fragment, useEffect, useMemo, useRef } from 'react';
 import { AssistantRow } from './AssistantRow';
 import { MessageBubble } from './MessageBubble';
-import { PdfPageDisplay } from './PdfPageDisplay';
 import { ThinkingIndicator } from './ThinkingIndicator';
+
+// react-pdf est client-only (pdfjs-dist a besoin de DOMMatrix).
+const PdfPageDisplay = dynamic(
+  () => import('./PdfPageDisplay').then((m) => m.PdfPageDisplay),
+  { ssr: false }
+);
 
 interface MessageListProps {
   messages: MyUIMessage[];

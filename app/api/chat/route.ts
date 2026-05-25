@@ -2,14 +2,12 @@ import { displayPdfPageTool } from '@/app/tools/displayPdfPageTool';
 import { displayQuizTool } from '@/app/tools/displayQuizTool';
 import { displayRevisionSheetTool } from '@/app/tools/displayRevisionSheetTool';
 import { MyUIMessage } from '@/types/CustomUiMessage';
-import {
-  loadPdfFromBuffer,
-  pdfResultsToMyUIMessageParts,
-  processPdf,
-} from '@/utils/pdf';
 import * as ai from 'ai';
 import { wrapAISDK } from 'langsmith/experimental/vercel';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+
+// Force le runtime Node.js (pdfjs-dist + @napi-rs/canvas en dépendent).
+export const runtime = 'nodejs';
 
 const LMSTUDIO_BASE_URL =
   process.env.LMSTUDIO_BASE_URL ?? 'http://localhost:1234/v1';
@@ -130,6 +128,12 @@ export async function POST(request: Request) {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
+
+    // Import dynamique : pdfjs-dist + @napi-rs/canvas s'exécutent au top-level
+    // de utils/pdf et cassent la phase "Collecting page data" du build Next.js
+    // si on les importe statiquement.
+    const { loadPdfFromBuffer, processPdf, pdfResultsToMyUIMessageParts } =
+      await import('@/utils/pdf');
 
     const messagesWithPdfInjected = await Promise.all(
       messages.map(async (message) => {

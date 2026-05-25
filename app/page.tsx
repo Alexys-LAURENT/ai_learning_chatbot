@@ -4,8 +4,15 @@ import { AppHeader } from "@/components/AppHeader";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { InputBar } from "@/components/InputBar";
 import { MessageList } from "@/components/MessageList";
-import { PdfViewerPanel } from "@/components/PdfViewerPanel";
 import { Sidebar, type DocumentEntry } from "@/components/Sidebar";
+import dynamic from "next/dynamic";
+
+// react-pdf utilise pdfjs-dist qui dépend de DOMMatrix (API navigateur).
+// Désactiver le SSR évite l'erreur de prerender au build.
+const PdfViewerPanel = dynamic(
+  () => import("@/components/PdfViewerPanel").then((m) => m.PdfViewerPanel),
+  { ssr: false }
+);
 import type { Citation } from "@/types/Citation";
 import type { MyUIMessage } from "@/types/CustomUiMessage";
 import { fileToUIPart } from "@/utils/fileToUIPart";
