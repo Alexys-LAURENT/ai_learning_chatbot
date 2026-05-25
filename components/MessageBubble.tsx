@@ -1,13 +1,16 @@
+import type { Citation } from "@/types/Citation";
 import type { FileUIPart } from "ai";
+import { CitationChips } from "./CitationChips";
 import { MarkdownContent } from "./MarkdownContent";
 
 interface MessageBubbleProps {
   role: "user" | "assistant" | "system" | string;
   content: string;
   attachments?: FileUIPart[];
+  citations?: Citation[];
 }
 
-export function MessageBubble({ role, content, attachments }: MessageBubbleProps) {
+export function MessageBubble({ role, content, attachments, citations }: MessageBubbleProps) {
   const isUser = role === "user";
 
   return (
@@ -31,6 +34,11 @@ export function MessageBubble({ role, content, attachments }: MessageBubbleProps
       </div>
 
       <div className={`flex flex-col gap-2 max-w-[76%] ${isUser ? "items-end" : "items-start"}`}>
+        {/* Citations */}
+        {citations && citations.length > 0 && (
+          <CitationChips citations={citations} />
+        )}
+
         {/* Bubble */}
         <div
           className={`px-4 py-3 text-sm leading-relaxed ${isUser ? "whitespace-pre-wrap" : ""}`}

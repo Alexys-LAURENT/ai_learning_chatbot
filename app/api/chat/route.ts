@@ -7,7 +7,6 @@ import {
   processPdf,
 } from '@/utils/pdf';
 import * as ai from 'ai';
-import fs from 'fs';
 import { wrapAISDK } from 'langsmith/experimental/vercel';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
@@ -164,11 +163,6 @@ export async function POST(request: Request) {
 
         return { ...message, parts: nextParts };
       })
-    );
-
-    fs.writeFileSync(
-      'messagesWithPdfInjected.json',
-      JSON.stringify(messagesWithPdfInjected, null, 2)
     );
 
     const convertedMessages = await ai.convertToModelMessages(

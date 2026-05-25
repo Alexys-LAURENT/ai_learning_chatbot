@@ -3,10 +3,12 @@
 import QuizComponent from '@/components/QuizComponent';
 import RevisionSheetComponent from '@/components/RevisionSheetComponent';
 import { MyUIMessage } from '@/types/CustomUiMessage';
+import { parseCitationsFromText } from '@/utils/citations';
 import { ScrollShadow, Spinner } from '@heroui/react';
 import type { ChatStatus } from 'ai';
 import { isFileUIPart, isTextUIPart } from 'ai';
 import { Fragment, useEffect, useRef } from 'react';
+import { AssistantRow } from './AssistantRow';
 import { MessageBubble } from './MessageBubble';
 import { ThinkingIndicator } from './ThinkingIndicator';
 
@@ -66,18 +68,20 @@ export function MessageList({ messages, status }: MessageListProps) {
       <div className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-6">
         {messages.map((message) => {
           if (message.role === 'user') {
-            const text = message.parts
+            const rawText = message.parts
               .filter(isTextUIPart)
               .map((p) => p.text)
               .join('');
-            if (!text) return null;
+            if (!rawText) return null;
+            const { citations, cleanText } = parseCitationsFromText(rawText);
             const files = message.parts.filter(isFileUIPart);
             return (
               <MessageBubble
                 key={message.id}
                 role="user"
-                content={text}
+                content={cleanText}
                 attachments={files.length > 0 ? files : undefined}
+                citations={citations.length > 0 ? citations : undefined}
               />
             );
           }
@@ -91,7 +95,7 @@ export function MessageList({ messages, status }: MessageListProps) {
                     ]
                   : [];
               case 'text':
-                return part.text
+                return part.text.trim()
                   ? [
                       <MessageBubble
                         key={`${message.id}-${i}`}
@@ -103,21 +107,23 @@ export function MessageList({ messages, status }: MessageListProps) {
               case 'tool-displayQuizTool':
                 return part.state === 'output-available'
                   ? [
-                      <QuizComponent
-                        key={`${message.id}-${i}`}
-                        subject={part.output.subject}
-                        questions={part.output.questions}
-                      />,
+                      <AssistantRow key={`${message.id}-${i}`}>
+                        <QuizComponent
+                          subject={part.output.subject}
+                          questions={part.output.questions}
+                        />
+                      </AssistantRow>,
                     ]
                   : [];
               case 'tool-displayRevisionSheetTool':
                 return part.state === 'output-available'
                   ? [
-                      <RevisionSheetComponent
-                        key={`${message.id}-${i}`}
-                        subject={part.output.subject}
-                        blocks={part.output.blocks}
-                      />,
+                      <AssistantRow key={`${message.id}-${i}`}>
+                        <RevisionSheetComponent
+                          subject={part.output.subject}
+                          blocks={part.output.blocks}
+                        />
+                      </AssistantRow>,
                     ]
                   : [];
               default:
