@@ -2,22 +2,30 @@
 
 import QuizComponent from '@/components/QuizComponent';
 import RevisionSheetComponent from '@/components/RevisionSheetComponent';
+import type { DocumentEntry } from '@/components/Sidebar';
 import { MyUIMessage } from '@/types/CustomUiMessage';
 import { parseCitationsFromText } from '@/utils/citations';
 import { ScrollShadow, Spinner } from '@heroui/react';
 import type { ChatStatus } from 'ai';
 import { isFileUIPart, isTextUIPart } from 'ai';
-import { Fragment, useEffect, useRef } from 'react';
+import { Fragment, useEffect, useMemo, useRef } from 'react';
 import { AssistantRow } from './AssistantRow';
 import { MessageBubble } from './MessageBubble';
+import { PdfPageDisplay } from './PdfPageDisplay';
 import { ThinkingIndicator } from './ThinkingIndicator';
 
 interface MessageListProps {
   messages: MyUIMessage[];
   status: ChatStatus;
+  documents: DocumentEntry[];
 }
 
-export function MessageList({ messages, status }: MessageListProps) {
+export function MessageList({ messages, status, documents }: MessageListProps) {
+  const filesByName = useMemo(() => {
+    const map = new Map<string, File>();
+    for (const doc of documents) map.set(doc.file.name, doc.file);
+    return map;
+  }, [documents]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const isLoading = status === 'submitted' || status === 'streaming';
 
@@ -124,6 +132,19 @@ export function MessageList({ messages, status }: MessageListProps) {
                         <RevisionSheetComponent
                           subject={part.output.subject}
                           blocks={part.output.blocks}
+                        />
+                      </AssistantRow>,
+                    ]
+                  : [];
+              case 'tool-displayPdfPageTool':
+                return part.state === 'output-available'
+                  ? [
+                      <AssistantRow key={`${message.id}-${i}`}>
+                        <PdfPageDisplay
+                          file={filesByName.get(part.output.source) ?? null}
+                          source={part.output.source}
+                          page={part.output.page}
+                          caption={part.output.caption}
                         />
                       </AssistantRow>,
                     ]

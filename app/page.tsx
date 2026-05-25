@@ -140,7 +140,7 @@ export default function Page() {
               </div>
             )}
 
-            <MessageList messages={messages} status={status} />
+            <MessageList messages={messages} status={status} documents={sentDocuments} />
 
             <InputBar
               onSend={handleSend}
