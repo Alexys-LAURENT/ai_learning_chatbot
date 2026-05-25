@@ -1,4 +1,5 @@
 import type { FileUIPart } from "ai";
+import { MarkdownContent } from "./MarkdownContent";
 
 interface MessageBubbleProps {
   role: "user" | "assistant" | "system" | string;
@@ -32,7 +33,7 @@ export function MessageBubble({ role, content, attachments }: MessageBubbleProps
       <div className={`flex flex-col gap-2 max-w-[76%] ${isUser ? "items-end" : "items-start"}`}>
         {/* Bubble */}
         <div
-          className="px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap"
+          className={`px-4 py-3 text-sm leading-relaxed ${isUser ? "whitespace-pre-wrap" : ""}`}
           style={{
             background: isUser
               ? "oklch(75.24% 0.0884 225.59 / 0.1)"
@@ -44,7 +45,7 @@ export function MessageBubble({ role, content, attachments }: MessageBubbleProps
             borderRadius: "var(--radius, 2px)",
           }}
         >
-          {content}
+          {isUser ? content : <MarkdownContent content={content} />}
         </div>
 
         {/* Attachments */}
