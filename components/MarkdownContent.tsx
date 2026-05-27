@@ -8,15 +8,15 @@ interface MarkdownContentProps {
 }
 
 const components: Components = {
-  p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+  p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed whitespace-normal break-words">{children}</p>,
   h1: ({ children }) => (
-    <h1 className="mt-3 mb-2 text-base font-semibold first:mt-0">{children}</h1>
+    <h1 className="mt-3 mb-2 text-base font-semibold first:mt-0 whitespace-normal break-words">{children}</h1>
   ),
   h2: ({ children }) => (
-    <h2 className="mt-3 mb-2 text-sm font-semibold first:mt-0">{children}</h2>
+    <h2 className="mt-3 mb-2 text-sm font-semibold first:mt-0 whitespace-normal break-words">{children}</h2>
   ),
   h3: ({ children }) => (
-    <h3 className="mt-2 mb-1 text-sm font-semibold first:mt-0">{children}</h3>
+    <h3 className="mt-2 mb-1 text-sm font-semibold first:mt-0 whitespace-normal break-words">{children}</h3>
   ),
   ul: ({ children }) => (
     <ul className="mb-2 list-disc space-y-1 pl-5 last:mb-0">{children}</ul>
@@ -24,7 +24,7 @@ const components: Components = {
   ol: ({ children }) => (
     <ol className="mb-2 list-decimal space-y-1 pl-5 last:mb-0">{children}</ol>
   ),
-  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+  li: ({ children }) => <li className="leading-relaxed whitespace-normal break-words">{children}</li>,
   strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
   em: ({ children }) => <em className="italic">{children}</em>,
   a: ({ href, children }) => (
@@ -95,14 +95,14 @@ const components: Components = {
   ),
   th: ({ children }) => (
     <th
-      className="px-2 py-1 text-left font-semibold"
+      className="px-2 py-1 text-left font-semibold whitespace-normal break-words"
       style={{ background: 'var(--surface-tertiary)', border: '1px solid var(--border)' }}
     >
       {children}
     </th>
   ),
   td: ({ children }) => (
-    <td className="px-2 py-1" style={{ border: '1px solid var(--border)' }}>
+    <td className="px-2 py-1 whitespace-normal break-words" style={{ border: '1px solid var(--border)' }}>
       {children}
     </td>
   ),

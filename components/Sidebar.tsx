@@ -96,7 +96,7 @@ function SidebarItem({
       </div>
       <div className="flex-1 min-w-0">
         <p
-          className="text-xs font-medium truncate leading-tight"
+          className="text-xs md:text-sm font-medium truncate leading-tight whitespace-normal break-words"
           style={{ color: "var(--foreground)" }}
         >
           {entry.file.name}

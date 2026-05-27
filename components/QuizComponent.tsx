@@ -77,7 +77,7 @@ export default function QuizComponent({ subject, questions }: Props) {
   }
 
   return (
-    <Card className="w-full max-w-lg overflow-hidden">
+    <Card className="w-full max-w-full md:max-w-lg overflow-hidden">
       <ProgressBar
         aria-label="Progression du quiz"
         value={index}
@@ -101,8 +101,8 @@ export default function QuizComponent({ subject, questions }: Props) {
         </span>
       </Card.Header>
 
-      <Card.Content className="space-y-4 pt-4">
-        <p className="text-lg leading-snug font-semibold">{current.question}</p>
+      <Card.Content className="space-y-4 pt-4 px-3 md:px-4">
+        <p className="text-sm md:text-lg leading-snug font-semibold whitespace-normal break-words">{current.question}</p>
 
         <div className="space-y-2">
           {current.choices.map((choice, i) => {
@@ -124,23 +124,23 @@ export default function QuizComponent({ subject, questions }: Props) {
                 onPress={() => handleSelect(i)}
                 isDisabled={revealed && !isCorrect && !isSelected}
                 fullWidth
-                className="justify-start"
+                className="justify-start h-auto whitespace-normal break-words text-left text-xs md:text-sm py-2 md:py-3"
               >
-                <span className="mr-1 font-bold">{toLabel(i)}.</span>
-                {choice}
+                <span className="mr-1.5 font-bold flex-shrink-0">{toLabel(i)}.</span>
+                <span className="text-left">{choice}</span>
               </Button>
             );
           })}
         </div>
 
         {answerState !== 'idle' && (
-          <div className="space-y-1 rounded-lg border p-4 text-sm">
+          <div className="space-y-1 rounded-lg border p-3 md:p-4 text-xs md:text-sm">
             <p className="font-semibold">
               {answerState === 'correct'
                 ? '✓ Correct'
                 : `✗ La bonne réponse était ${toLabel(current.correctAnswerIndex)}`}
             </p>
-            <p className="text-muted">{current.explanation}</p>
+            <p className="text-muted whitespace-normal break-words">{current.explanation}</p>
           </div>
         )}
       </Card.Content>

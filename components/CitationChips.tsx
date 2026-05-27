@@ -37,7 +37,7 @@ function CitationChip({
 
   return (
     <div
-      className="inline-flex max-w-xs items-center gap-1.5 px-2 py-1 text-[11px]"
+      className="inline-flex max-w-xs items-center gap-1.5 px-2 py-1 text-[11px] whitespace-normal break-words"
       style={{
         background: 'oklch(75.24% 0.0884 225.59 / 0.1)',
         border: '1px solid oklch(75.24% 0.0884 225.59 / 0.3)',
@@ -46,10 +46,10 @@ function CitationChip({
       }}
       title={`${citation.docName} — ${citation.text}`}
     >
-      <span className="font-medium" style={{ color: 'oklch(75.24% 0.0884 225.59)' }}>
+      <span className="font-medium whitespace-nowrap" style={{ color: 'oklch(75.24% 0.0884 225.59)' }}>
         {label}
       </span>
-      <span className="truncate" style={{ color: 'var(--muted)' }}>
+      <span className="truncate whitespace-normal break-words" style={{ color: 'var(--muted)' }}>
         {citationPreview(citation.text)}
       </span>
       {onRemove && (
