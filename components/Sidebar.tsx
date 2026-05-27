@@ -20,13 +20,13 @@ export function Sidebar({ documents, selectedDocId, onSelectDocument }: SidebarP
       }}
     >
       <div
-        className="px-4 py-3 shrink-0"
+        className="px-3 md:px-4 py-2 md:py-3 shrink-0"
         style={{ borderBottom: "1px solid var(--separator)" }}
       >
-        <span className="text-[10px] tracking-[0.15em] uppercase font-medium" style={{ color: "var(--muted)" }}>
-          Documents&nbsp;
+        <span className="text-[9px] md:text-[10px] tracking-[0.15em] uppercase font-medium" style={{ color: "var(--muted)" }}>
+          Docs&nbsp;
           <span
-            className="px-1.5 py-0.5 rounded text-[9px] font-bold tabular-nums"
+            className="px-1.5 py-0.5 rounded text-[8px] md:text-[9px] font-bold tabular-nums"
             style={{
               background: "var(--surface-tertiary)",
               color: "var(--foreground)",
@@ -39,8 +39,8 @@ export function Sidebar({ documents, selectedDocId, onSelectDocument }: SidebarP
 
       <div className="flex-1 py-1">
         {documents.length === 0 ? (
-          <p className="px-4 py-3 text-xs" style={{ color: "var(--muted)" }}>
-            Aucun document
+          <p className="px-3 md:px-4 py-3 text-xs" style={{ color: "var(--muted)" }}>
+            Aucun
           </p>
         ) : (
           documents.map((doc) => (
@@ -76,7 +76,7 @@ function SidebarItem({
     <button
       type="button"
       onClick={() => onSelect(entry)}
-      className="group flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition-colors"
+      className="group flex w-full items-start gap-2 md:gap-2.5 px-2 md:px-3 py-2 text-left transition-colors"
       style={{
         background: active ? "var(--surface-secondary)" : "transparent",
         borderLeft: active
@@ -96,13 +96,13 @@ function SidebarItem({
       </div>
       <div className="flex-1 min-w-0">
         <p
-          className="text-xs font-medium truncate leading-tight"
+          className="text-xs md:text-sm font-medium truncate leading-tight"
           style={{ color: "var(--foreground)" }}
         >
           {entry.file.name}
         </p>
         <p
-          className="text-[10px] tabular-nums mt-0.5"
+          className="text-[9px] md:text-[10px] tabular-nums mt-0.5"
           style={{ color: "var(--muted)" }}
         >
           {sizeMb} Mo · {time}

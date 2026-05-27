@@ -71,31 +71,31 @@ export function DocumentUpload({ onSubmit, isSubmitting = false }: DocumentUploa
         }}
       />
 
-      <div className="relative flex w-full max-w-md flex-col gap-8 px-6">
-        <div className="flex flex-col items-center gap-4 text-center">
+      <div className="relative flex w-full max-w-md flex-col gap-6 md:gap-8 px-4 md:px-6">
+        <div className="flex flex-col items-center gap-3 md:gap-4 text-center">
           <div className="flex items-center gap-3">
-            <span className="block h-px w-10 bg-border" />
-            <span className="text-muted text-[10px] font-medium tracking-[0.2em] uppercase">
-              Document Chat
+            <span className="block h-px w-8 md:w-10 bg-border" />
+            <span className="text-muted text-[9px] md:text-[10px] font-medium tracking-[0.2em] uppercase">
+              StudyMate
             </span>
-            <span className="block h-px w-10 bg-border" />
+            <span className="block h-px w-8 md:w-10 bg-border" />
           </div>
           <h1
-            className="text-foreground text-[2.5rem] leading-[1.1] font-bold tracking-tight"
+            className="text-foreground text-xl md:text-[2.5rem] leading-[1.1] font-bold tracking-tight"
             style={{ fontFamily: "var(--font-sans)" }}
           >
             Analysez vos
             <br />
-            documents PDF
+            PDFs
           </h1>
-          <p className="text-muted max-w-xs text-sm">
-            Importez un ou plusieurs documents puis lancez la conversation
+          <p className="text-muted max-w-xs text-xs md:text-sm">
+            Importez puis posez vos questions
           </p>
         </div>
 
         <label
           htmlFor="pdf-upload"
-          className="relative flex h-40 w-full cursor-pointer flex-col items-center justify-center gap-3 select-none transition-all duration-200"
+          className="relative flex h-32 md:h-40 w-full cursor-pointer flex-col items-center justify-center gap-2 md:gap-3 select-none transition-all duration-200"
           style={{
             border: isDragging
               ? "2px dashed oklch(75.24% 0.0884 225.59)"
@@ -137,12 +137,12 @@ export function DocumentUpload({ onSubmit, isSubmitting = false }: DocumentUploa
             <PdfIcon />
           </div>
 
-          <div className="space-y-1 text-center">
-            <p className="text-foreground text-sm font-semibold">
-              {isDragging ? "Relâchez pour importer" : "Glissez vos PDF ici"}
+          <div className="space-y-0.5 md:space-y-1 text-center">
+            <p className="text-foreground text-xs md:text-sm font-semibold">
+              {isDragging ? "Relâchez" : "Glissez vos PDF"}
             </p>
-            <p className="text-muted text-xs">
-              ou cliquez pour parcourir vos fichiers
+            <p className="text-muted text-[10px] md:text-xs">
+              ou cliquez
             </p>
           </div>
         </label>
@@ -153,7 +153,7 @@ export function DocumentUpload({ onSubmit, isSubmitting = false }: DocumentUploa
 
         {error && (
           <p
-            className="flex items-center justify-center gap-2 text-sm"
+            className="flex items-center justify-center gap-2 text-xs md:text-sm"
             style={{ color: "var(--danger)" }}
           >
             <span>⚠</span>
@@ -171,7 +171,7 @@ export function DocumentUpload({ onSubmit, isSubmitting = false }: DocumentUploa
             <Spinner size="sm" color="current" />
           ) : (
             <>
-              Lancer la conversation
+              Démarrer
               {files.length > 0 && (
                 <span className="ml-1.5 opacity-70">({files.length})</span>
               )}
@@ -179,9 +179,8 @@ export function DocumentUpload({ onSubmit, isSubmitting = false }: DocumentUploa
           )}
         </Button>
 
-        <p className="text-muted -mt-4 text-center text-xs">
-          Format accepté :{" "}
-          <span className="text-foreground font-medium">PDF uniquement</span>
+        <p className="text-muted text-center text-[10px] md:text-xs">
+          PDF uniquement
         </p>
       </div>
     </div>

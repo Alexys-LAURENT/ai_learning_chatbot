@@ -41,9 +41,9 @@ export function MessageList({ messages, status, documents }: MessageListProps) {
 
   if (messages.length === 0) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 md:gap-3 px-4 text-center">
         <div
-          className="flex h-10 w-10 items-center justify-center"
+          className="flex h-8 md:h-10 w-8 md:w-10 items-center justify-center"
           style={{
             background: 'var(--surface)',
             border: '1px solid var(--border)',
@@ -52,8 +52,8 @@ export function MessageList({ messages, status, documents }: MessageListProps) {
           }}
         >
           <svg
-            width="20"
-            height="20"
+            width="18"
+            height="18"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -62,15 +62,15 @@ export function MessageList({ messages, status, documents }: MessageListProps) {
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
         </div>
-        <div className="space-y-1">
+        <div className="space-y-0.5 md:space-y-1">
           <p
-            className="text-sm font-medium"
+            className="text-xs md:text-sm font-medium"
             style={{ color: 'var(--foreground)' }}
           >
-            Votre document est prêt
+            Prêt à démarrer
           </p>
-          <p className="text-xs" style={{ color: 'var(--muted)' }}>
-            Posez votre première question ci-dessous
+          <p className="text-[11px] md:text-xs" style={{ color: 'var(--muted)' }}>
+            Posez votre question
           </p>
         </div>
       </div>
@@ -79,7 +79,7 @@ export function MessageList({ messages, status, documents }: MessageListProps) {
 
   return (
     <ScrollShadow hideScrollBar className="flex-1 overflow-y-auto">
-      <div className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-6">
+      <div className="mx-auto flex max-w-3xl flex-col gap-3 md:gap-5 px-3 md:px-4 py-4 md:py-6">
         {messages.map((message) => {
           if (message.role === 'user') {
             const rawText = message.parts

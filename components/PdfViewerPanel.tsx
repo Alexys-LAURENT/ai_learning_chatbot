@@ -17,7 +17,8 @@ import 'react-pdf/dist/Page/TextLayer.css';
 // Worker pdfjs : version alignée avec celle bundlée par react-pdf.
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-const PAGE_WIDTH = 440;
+// Hauteur constante pour la Page
+const PAGE_HEIGHT = 550;
 
 export interface PdfViewerPanelProps {
   docId: string;
@@ -46,6 +47,12 @@ export function PdfViewerPanel({
   const [pdfDoc, setPdfDoc] = useState<PdfDocument | null>(null);
   const [numPages, setNumPages] = useState(0);
   const [selection, setSelection] = useState<PendingSelection | null>(null);
+  const [pageWidth, setPageWidth] = useState(400);
+  const containerRef = useCallback((node: HTMLElement | null) => {
+    if (node) {
+      setPageWidth(Math.min(node.clientWidth - 24, 500));
+    }
+  }, []);
 
   const documentOptions = useMemo(
     () => ({ cMapUrl: 'https://unpkg.com/pdfjs-dist@5.4.296/cmaps/' }),
@@ -142,14 +149,15 @@ export function PdfViewerPanel({
 
   return (
     <aside
-      className="flex w-120 shrink-0 flex-col overflow-hidden"
+      ref={containerRef}
+      className="hidden lg:flex lg:w-96 xl:w-[500px] shrink-0 flex-col overflow-hidden"
       style={{
         borderRight: '1px solid var(--separator)',
         background: 'var(--surface)',
       }}
     >
       <header
-        className="flex shrink-0 items-center justify-between gap-2 px-4 py-3"
+        className="flex shrink-0 items-center justify-between gap-2 px-3 md:px-4 py-3"
         style={{ borderBottom: '1px solid var(--separator)' }}
       >
         <div className="min-w-0 flex-1">
@@ -178,7 +186,7 @@ export function PdfViewerPanel({
         </Button>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3 py-3">
+      <div className="flex-1 overflow-y-auto px-2 md:px-3 py-3">
         <Document
           file={file}
           onLoadSuccess={handleDocumentLoad}
@@ -192,6 +200,7 @@ export function PdfViewerPanel({
               pageNumber={pageNumber}
               checked={pageCitations.has(pageNumber)}
               onToggle={togglePageCitation}
+              pageWidth={pageWidth}
             />
           ))}
         </Document>
@@ -215,10 +224,12 @@ function PageItem({
   pageNumber,
   checked,
   onToggle,
+  pageWidth,
 }: {
   pageNumber: number;
   checked: boolean;
   onToggle: (pageNumber: number) => void;
+  pageWidth: number;
 }) {
   return (
     <div
@@ -253,7 +264,8 @@ function PageItem({
       </div>
       <Page
         pageNumber={pageNumber}
-        width={PAGE_WIDTH}
+        width={pageWidth}
+        height={PAGE_HEIGHT}
         renderAnnotationLayer={false}
       />
     </div>

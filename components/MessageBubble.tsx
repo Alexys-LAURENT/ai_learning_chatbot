@@ -14,10 +14,10 @@ export function MessageBubble({ role, content, attachments, citations }: Message
   const isUser = role === "user";
 
   return (
-    <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+    <div className={`flex gap-2 md:gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
       {/* Avatar */}
       <div
-        className="shrink-0 w-7 h-7 flex items-center justify-center text-[10px] font-bold tracking-wide"
+        className="shrink-0 w-6 md:w-7 h-6 md:h-7 flex items-center justify-center text-[9px] md:text-[10px] font-bold tracking-wide"
         style={{
           background: isUser
             ? "oklch(75.24% 0.0884 225.59 / 0.15)"
@@ -33,7 +33,7 @@ export function MessageBubble({ role, content, attachments, citations }: Message
         {isUser ? "V" : "AI"}
       </div>
 
-      <div className={`flex flex-col gap-2 max-w-[76%] ${isUser ? "items-end" : "items-start"}`}>
+      <div className={`flex flex-col gap-1.5 md:gap-2 max-w-[85%] sm:max-w-[76%] ${isUser ? "items-end" : "items-start"}`}>
         {/* Citations */}
         {citations && citations.length > 0 && (
           <CitationChips citations={citations} />
@@ -42,7 +42,7 @@ export function MessageBubble({ role, content, attachments, citations }: Message
         {/* Bubble */}
         {content && (
           <div
-            className={`px-4 py-3 text-sm leading-relaxed ${isUser ? "whitespace-pre-wrap" : ""}`}
+            className={`px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm leading-relaxed ${isUser ? "whitespace-pre-wrap" : ""}`}
             style={{
               background: isUser
                 ? "oklch(75.24% 0.0884 225.59 / 0.1)"
@@ -64,7 +64,7 @@ export function MessageBubble({ role, content, attachments, citations }: Message
             {attachments.map((file, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs"
+                className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 text-[11px] md:text-xs"
                 style={{
                   background: "oklch(75.24% 0.0884 225.59 / 0.08)",
                   border: "1px solid oklch(75.24% 0.0884 225.59 / 0.2)",
