@@ -25,7 +25,7 @@ export default function RevisionSheetComponent({ subject, blocks }: Props) {
             <p className="text-muted mb-1 text-xs tracking-widest uppercase">
               Fiche de révision
             </p>
-            <Card.Title className="text-3xl font-bold">{subject}</Card.Title>
+            <Card.Title className="text-3xl font-bold whitespace-normal break-words">{subject}</Card.Title>
           </div>
           <Chip
             color="warning"

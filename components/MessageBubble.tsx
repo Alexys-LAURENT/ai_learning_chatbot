@@ -42,7 +42,7 @@ export function MessageBubble({ role, content, attachments, citations }: Message
         {/* Bubble */}
         {content && (
           <div
-            className={`px-4 py-3 text-sm leading-relaxed ${isUser ? "whitespace-pre-wrap" : ""}`}
+            className={`px-4 py-3 text-sm leading-relaxed whitespace-normal break-words ${isUser ? "whitespace-pre-wrap" : ""}`}
             style={{
               background: isUser
                 ? "oklch(75.24% 0.0884 225.59 / 0.1)"
@@ -64,7 +64,7 @@ export function MessageBubble({ role, content, attachments, citations }: Message
             {attachments.map((file, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs"
+                className="flex items-center gap-2 px-3 py-1.5 text-xs whitespace-normal break-words"
                 style={{
                   background: "oklch(75.24% 0.0884 225.59 / 0.08)",
                   border: "1px solid oklch(75.24% 0.0884 225.59 / 0.2)",
@@ -72,11 +72,11 @@ export function MessageBubble({ role, content, attachments, citations }: Message
                   color: "var(--muted)",
                 }}
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
-                <span className="truncate max-w-50">
+                <span className="truncate">
                   {file.filename ?? file.mediaType}
                 </span>
               </div>
