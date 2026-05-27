@@ -3,19 +3,19 @@ import { ThemeToggle } from "./ThemeToggle";
 export function AppHeader() {
   return (
     <header
-      className="flex items-center justify-between px-5 py-3 shrink-0"
+      className="flex items-center justify-between px-3 md:px-5 py-2.5 md:py-3 shrink-0"
       style={{
         borderBottom: "1px solid var(--separator)",
         background: "var(--background)",
       }}
     >
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2">
         <ChatBubbleIcon />
         <span
-          className="text-sm font-semibold tracking-tight"
+          className="text-xs md:text-sm font-semibold tracking-tight"
           style={{ color: "var(--foreground)", fontFamily: "var(--font-sans)" }}
         >
-          Document Chat
+          StudyMate
         </span>
       </div>
 

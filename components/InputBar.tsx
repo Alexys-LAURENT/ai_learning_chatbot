@@ -67,7 +67,7 @@ export function InputBar({
 
   return (
     <div
-      className="px-4 py-3 shrink-0"
+      className="px-3 md:px-4 py-2 md:py-3 shrink-0"
       style={{ borderTop: "1px solid var(--separator)", background: "var(--background)" }}
     >
       {/* Attachment preview */}
@@ -86,7 +86,7 @@ export function InputBar({
         </div>
       )}
 
-      <form className="max-w-3xl mx-auto flex gap-2 items-end">
+      <form className="max-w-3xl mx-auto flex gap-1 md:gap-2 items-end">
         {/* Paperclip button */}
         <Button
           onPress={() => fileInputRef.current?.click()}
@@ -112,12 +112,12 @@ export function InputBar({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Posez une question sur vos documents… (Entrée pour envoyer)"
+          placeholder="Votre question… (Entrée pour envoyer)"
           disabled={isLoading}
           rows={2}
           fullWidth
           variant="primary"
-          className="flex-1 resize-none"
+          className="flex-1 resize-none text-sm"
         />
 
         <Button
@@ -134,12 +134,12 @@ export function InputBar({
       </form>
 
       <p
-        className="text-center text-[11px] mt-2"
+        className="text-center text-[10px] md:text-[11px] mt-1.5 md:mt-2"
         style={{ color: requireAttachment && !attachment ? "var(--warning)" : "var(--muted)" }}
       >
         {requireAttachment && !attachment
-          ? "Un document PDF est requis pour envoyer le premier message"
-          : "Entrée pour envoyer · Maj+Entrée pour une nouvelle ligne"}
+          ? "PDF requis"
+          : "Entrée pour envoyer"}
       </p>
     </div>
   );

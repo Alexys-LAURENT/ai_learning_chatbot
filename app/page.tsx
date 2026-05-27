@@ -28,6 +28,7 @@ export default function Page() {
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [citations, setCitations] = useState<Citation[]>([]);
   const [isInitialSubmitting, setIsInitialSubmitting] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const transport = useMemo(
     () => new DefaultChatTransport({ api: "/api/chat" }),
@@ -104,62 +105,104 @@ export default function Page() {
           isSubmitting={isGateSubmitting}
         />
       ) : (
-        <div className="flex flex-1 overflow-hidden">
-          <Sidebar
-            documents={sentDocuments}
-            selectedDocId={selectedDocId}
-            onSelectDocument={(doc) => setSelectedDocId(doc.id)}
-          />
-
-          {selectedDocument && (
-            <PdfViewerPanel
-              docId={selectedDocument.id}
-              docName={selectedDocument.file.name}
-              file={selectedDocument.file}
-              citations={citations}
-              onClose={() => setSelectedDocId(null)}
-              onAddCitation={addCitation}
-              onRemoveCitation={removeCitation}
+        <>
+          {/* Mobile drawer overlay */}
+          {sidebarOpen && (
+            <div
+              className="fixed inset-0 z-40 bg-black/50 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+              aria-hidden="true"
             />
           )}
 
-          <div className="flex flex-col flex-1 overflow-hidden">
-            {error && (
-              <div
-                className="flex items-center justify-between gap-4 px-4 py-2 text-xs shrink-0"
-                style={{
-                  background: "oklch(65.32% 0.236 22.35 / 0.1)",
-                  color: "var(--danger)",
-                  borderBottom: "1px solid oklch(65.32% 0.236 22.35 / 0.2)",
+          <div className="flex flex-1 overflow-hidden relative">
+            {/* Sidebar */}
+            <div
+              className={`absolute inset-y-0 left-0 z-50 w-56 transform transition-transform md:relative md:z-auto md:transform-none ${
+                sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+              }`}
+            >
+              <Sidebar
+                documents={sentDocuments}
+                selectedDocId={selectedDocId}
+                onSelectDocument={(doc) => {
+                  setSelectedDocId(doc.id);
+                  setSidebarOpen(false);
                 }}
-              >
-                <span className="truncate">Erreur : {error.message}</span>
-                <div className="flex items-center gap-3 shrink-0">
-                  {status === "streaming" && (
-                    <Button size="sm" variant="ghost" onPress={stop}>
-                      Arrêter
-                    </Button>
-                  )}
-                  <Button size="sm" variant="ghost" isIconOnly onPress={clearError} aria-label="Fermer">
-                    ✕
-                  </Button>
-                </div>
+              />
+            </div>
+
+            {/* PDF Viewer - hidden on small screens unless expanded */}
+            {selectedDocument && (
+              <div className="hidden lg:flex flex-col flex-shrink-0">
+                <PdfViewerPanel
+                  docId={selectedDocument.id}
+                  docName={selectedDocument.file.name}
+                  file={selectedDocument.file}
+                  citations={citations}
+                  onClose={() => setSelectedDocId(null)}
+                  onAddCitation={addCitation}
+                  onRemoveCitation={removeCitation}
+                />
               </div>
             )}
 
-            <MessageList messages={messages} status={status} documents={sentDocuments} />
+            {/* Chat section */}
+            <div className="flex flex-col flex-1 overflow-hidden">
+              {/* Mobile toggle button */}
+              <div className="md:hidden flex items-center px-3 py-2 shrink-0" style={{ borderBottom: "1px solid var(--separator)" }}>
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  size="sm"
+                  onPress={() => setSidebarOpen(!sidebarOpen)}
+                  aria-label="Basculer la barre latérale"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                  </svg>
+                </Button>
+              </div>
 
-            <InputBar
-              onSend={handleSend}
-              isLoading={isLoading}
-              attachment={pendingAttachment}
-              onAttachmentChange={setPendingAttachment}
-              requireAttachment={messages.length === 0}
-              citations={citations}
-              onRemoveCitation={removeCitation}
-            />
+              {error && (
+                <div
+                  className="flex items-center justify-between gap-4 px-3 md:px-4 py-2 text-xs shrink-0"
+                  style={{
+                    background: "oklch(65.32% 0.236 22.35 / 0.1)",
+                    color: "var(--danger)",
+                    borderBottom: "1px solid oklch(65.32% 0.236 22.35 / 0.2)",
+                  }}
+                >
+                  <span className="truncate">Erreur : {error.message}</span>
+                  <div className="flex items-center gap-2 md:gap-3 shrink-0">
+                    {status === "streaming" && (
+                      <Button size="sm" variant="ghost" onPress={stop}>
+                        Arrêter
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" isIconOnly onPress={clearError} aria-label="Fermer">
+                      ✕
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <MessageList messages={messages} status={status} documents={sentDocuments} />
+
+              <InputBar
+                onSend={handleSend}
+                isLoading={isLoading}
+                attachment={pendingAttachment}
+                onAttachmentChange={setPendingAttachment}
+                requireAttachment={messages.length === 0}
+                citations={citations}
+                onRemoveCitation={removeCitation}
+              />
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
