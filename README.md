@@ -1,4 +1,3 @@
-````markdown
 # StudyMate — Document Chat (PDF + IA)
 
 **StudyMate** est une application web (Next.js) qui te permet de **discuter avec un ou plusieurs documents PDF** : poser des questions, demander une **fiche de révision**, générer un **quiz/QCM**, et afficher une **page précise** d’un document directement dans le chat.
@@ -178,4 +177,3 @@ Certains composants PDF sont explicitement chargés sans SSR pour éviter les er
 ## Licence
 
 À définir (MIT, Apache-2.0, etc.).
-````
